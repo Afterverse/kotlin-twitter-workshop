@@ -1,5 +1,7 @@
 package com.playkids.workshop.logic
 
+import com.playkids.workshop.model.Tweet
+
 /**
  * @author Adriano Belfort (adriano.belfort@playkids.com) on 2019-08-03
  */
@@ -56,5 +58,13 @@ fun <T> topTweet(tweetLikes: List<Pair<T, Int>>): T? {
         ?.first
 }
 
-
-
+fun getWordRanking(tweets: List<Tweet>): List<Pair<String, Int>> =
+    tweets
+        .map { countWords(it.text) }
+        .flatMap { it.toList() }
+        .groupBy({ it.first }, { it.second })
+        .mapValues { (_, counts) ->
+            counts.sum()
+        }
+        .toList()
+        .sortedByDescending { it.second }
