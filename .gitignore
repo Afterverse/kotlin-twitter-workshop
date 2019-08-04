@@ -8,3 +8,4 @@ out
 *.mmdb.gz
 .java-version
 *\~
+twitter4j.properties
