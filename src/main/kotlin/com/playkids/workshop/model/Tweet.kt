@@ -27,7 +27,7 @@ data class Tweet(
     val currentUserRetweetId: TweetId? = null,
     val isPossiblySensitive: Boolean,
     val language: String,
-    val scopes: Scopes,
+    val scopes: Scopes? = null,
     val quoteInformation: QuoteInformation? = null
 )
 
@@ -44,7 +44,7 @@ data class ReplyInfo(
 
 data class QuoteInformation(
     val quotedTweetId: TweetId,
-    val quotedTweet: Tweet,
+    val quotedTweet: Tweet? = null,
     val quotedTweetPermalink: URLEntity
 )
 
@@ -67,7 +67,7 @@ fun Status.toTweet(): Tweet =
             displayTextRangeStart,
             displayTextRangeEnd
         ) else null,
-        replyInfo = inReplyToStatusId.takeIf { it != -1L }.let {
+        replyInfo = inReplyToStatusId.takeIf { it != -1L }?.let {
             ReplyInfo(
                 inReplyToStatusId,
                 inReplyToUserId,
@@ -89,7 +89,7 @@ fun Status.toTweet(): Tweet =
         quoteInformation = quotedStatusId.takeIf { it != -1L }?.let {
             QuoteInformation(
                 quotedTweetId = quotedStatusId,
-                quotedTweet = quotedStatus.toTweet(),
+                quotedTweet = quotedStatus?.toTweet(),
                 quotedTweetPermalink = quotedStatusPermalink
             )
         }
