@@ -5,8 +5,6 @@ package com.playkids.workshop
  * @since 8/3/19
  */
 fun main() {
-    println("""
-        Everything wired up!!
-        Hello, 🌎!!!
-    """.trimIndent())
+    println("Everything wired up!!")
+    println("Hello 🌎!!!")
 }
