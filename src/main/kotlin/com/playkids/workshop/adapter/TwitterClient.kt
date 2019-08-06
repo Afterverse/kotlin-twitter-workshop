@@ -1,11 +1,7 @@
 package com.playkids.workshop.adapter
 
-import com.playkids.workshop.model.SimpleUser
-import com.playkids.workshop.model.Tweet
-import com.playkids.workshop.model.toSimpleUser
-import com.playkids.workshop.model.toTweet
-import twitter4j.IDs
-import twitter4j.TwitterFactory
+import com.playkids.workshop.model.*
+import twitter4j.*
 
 /**
  * @author Júlio Moreira Blás de Barros (julio.barros@movile.com)
@@ -16,10 +12,37 @@ object TwitterClient {
 
     fun getLoggedUser() = twitter.verifyCredentials().toSimpleUser()
 
-    fun getHomeTweets(): List<Tweet> =
-        twitter.getHomeTimeline().map {
-            it.toTweet()
+    fun getHomeTweets(maxTweets: Int): List<Tweet> {
+        var page = 1
+        var totalTweets = 0
+
+        val tweetSequence = generateSequence {
+            if (totalTweets >= maxTweets) null
+            else
+                twitter.getHomeTimeline(Paging(page++, maxTweets - totalTweets))
+                    .toList()
+                    .also { totalTweets += it.size }
+                    .takeIf { it.isNotEmpty() }
         }
+
+        return tweetSequence.flatten().map { it.toTweet() }.toList()
+    }
+
+    fun getUserTweets(screenName: String, maxTweets: Int): List<Tweet> {
+        var page = 1
+        var totalTweets = 0
+
+        val userSequence = generateSequence {
+            if (totalTweets >= maxTweets) null
+            else
+                twitter.getUserTimeline(screenName, Paging(page++, maxTweets - totalTweets))
+                    .toList()
+                    .also { totalTweets += it.size }
+                    .takeIf { it.isNotEmpty() }
+        }
+
+        return userSequence.flatten().map { it.toTweet() }.toList()
+    }
 
     fun getUserFollowers(user: SimpleUser, startingAt: Long = -1): List<SimpleUser> {
         val response = twitter.friendsFollowers().getFollowersIDs(user.id, startingAt)
