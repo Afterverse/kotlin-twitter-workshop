@@ -12,6 +12,8 @@ import kotlin.math.max
 fun main() {
     println("everything wired up!!")
 
+    TwitterClient.doOauth().also { println(it) }
+
     val user = TwitterClient.getLoggedUser()
 
     println(user)
