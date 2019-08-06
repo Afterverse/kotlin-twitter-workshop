@@ -8,9 +8,11 @@ import twitter4j.*
  * @since 8/3/19
  */
 object TwitterClient {
-    val twitter = TwitterFactory.getSingleton()
+    val twitter = TwitterFactory.getSingleton()!!
 
-    fun getLoggedUser() = twitter.verifyCredentials().toSimpleUser()
+    fun getLoggedUser() = twitter
+        .verifyCredentials()
+        .toSimpleUser()
 
     fun getHomeTweets(maxTweets: Int): Sequence<Tweet> {
         var page = 1
@@ -25,7 +27,9 @@ object TwitterClient {
                     .takeIf { it.isNotEmpty() }
         }
 
-        return tweetSequence.flatten().map { it.toTweet() }
+        return tweetSequence
+            .flatten()
+            .map { it.toTweet() }
     }
 
     fun getUserTweets(screenName: String, maxTweets: Int): List<Tweet> {
@@ -41,17 +45,22 @@ object TwitterClient {
                     .takeIf { it.isNotEmpty() }
         }
 
-        return userSequence.flatten().map { it.toTweet() }.toList()
+        return userSequence
+            .flatten()
+            .map { it.toTweet() }
+            .toList()
     }
 
     fun getUserFollowers(user: SimpleUser, startingAt: Long = -1): List<SimpleUser> {
-        val response = twitter.friendsFollowers().getFollowersIDs(user.id, startingAt)
+        val response = twitter.friendsFollowers()
+            .getFollowersIDs(user.id, startingAt)
 
         return lookupUsers(response)
     }
 
     fun getUserFollowing(user: SimpleUser, startingAt: Long = -1): List<SimpleUser> {
-        val response = twitter.friendsFollowers().getFriendsIDs(user.id, startingAt)
+        val response = twitter.friendsFollowers()
+            .getFriendsIDs(user.id, startingAt)
 
         return lookupUsers(response)
     }
