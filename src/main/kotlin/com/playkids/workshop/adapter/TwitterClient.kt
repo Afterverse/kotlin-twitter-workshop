@@ -12,7 +12,7 @@ object TwitterClient {
 
     fun getLoggedUser() = twitter.verifyCredentials().toSimpleUser()
 
-    fun getHomeTweets(maxTweets: Int): List<Tweet> {
+    fun getHomeTweets(maxTweets: Int): Sequence<Tweet> {
         var page = 1
         var totalTweets = 0
 
@@ -25,7 +25,7 @@ object TwitterClient {
                     .takeIf { it.isNotEmpty() }
         }
 
-        return tweetSequence.flatten().map { it.toTweet() }.toList()
+        return tweetSequence.flatten().map { it.toTweet() }
     }
 
     fun getUserTweets(screenName: String, maxTweets: Int): List<Tweet> {

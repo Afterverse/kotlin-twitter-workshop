@@ -16,21 +16,28 @@ fun main() {
 
     println(user)
 
-    val tweets = TwitterClient.getHomeTweets(50)
+    val tweets = TwitterClient.getHomeTweets(300)
 
-    println("total tweets: ${tweets.size}")
+    val filteredTweets = tweets.filter { it.retweetedTweet == null }
+        .filter { it.quoteInformation == null }
+        .filter { it.replyInfo == null }
+        .toList()
+
+    println("total tweets: ${filteredTweets.size}")
     println()
 
-    val ranking = getWordRanking(tweets)
+    val ranking = getWordRanking(filteredTweets)
 
     ranking
-        .subList(0, max(50, tweets.size))
+        .filter { it.first.isNotBlank() }
+        .filter { !it.first.isConnective() }
+        .subList(0, max(50, filteredTweets.size))
         .forEachIndexed { index, (word, count) ->
             println("Rank ${index+1}: '$word' written $count times")
         }
 
     println()
-    topTweet(tweets.map { it to it.favoriteCount })
+    topTweet(filteredTweets.map { it to it.favoriteCount })
         ?.run {
             println("Top tweet: '$text' from '@${relatedUser.screenName}' with $favoriteCount likes")
         }
@@ -41,4 +48,12 @@ fun main() {
             .map { it.text }
             .joinToString("\n\n\n")
     }")
+}
+
+private fun String.isConnective(): Boolean {
+    return setOf( "de", "que", "no", "pra","na", "do", "da", "to", "and",
+        "the", "com", "for", "um", "in", "of", "em", "your", "with", "te",
+        "se", "as", "meu", "por", "para", "tambm", "tem", "muito", "ele",
+        "sendo","sobre", "nas", "minha", "vc", "by", "os", "our", "its")
+        .contains(this.toLowerCase()) || this.length <= 1
 }
