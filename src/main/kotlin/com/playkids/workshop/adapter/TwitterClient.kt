@@ -1,13 +1,12 @@
 package com.playkids.workshop.adapter
 
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.playkids.workshop.model.*
-import twitter4j.*
+import twitter4j.IDs
+import twitter4j.Paging
 import twitter4j.TwitterException
-import java.io.BufferedReader
+import twitter4j.TwitterFactory
 import twitter4j.auth.AccessToken
-import java.io.File
+import java.io.BufferedReader
 import java.io.InputStreamReader
 
 /**
@@ -73,10 +72,6 @@ object TwitterClient {
     }
 
     fun doOauth(): UserAuthProperties {
-        getAuthProperties(121804107)?.let {
-            twitter.oAuthAccessToken = AccessToken(it.token, it.tokenSecret)
-            return it
-        }
 
         val requestToken = twitter.oAuthRequestToken
         var accessToken: AccessToken? = null
@@ -102,36 +97,40 @@ object TwitterClient {
 
         }
         //persist to the accessToken for future reference.
-        return storeAccessToken(twitter.verifyCredentials().id, accessToken)
-    }
-
-    val dbFile = File("/Users/julio.barros/tokens.txt")
-
-    private fun storeAccessToken(userId: UserId, accessToken: AccessToken): UserAuthProperties {
-        dbFile.createNewFile()
-
-        val properties = UserAuthProperties(
-            userId = userId,
+        return UserAuthProperties(
+            userId = twitter.verifyCredentials().id,
             token = accessToken.token,
             tokenSecret = accessToken.tokenSecret
         )
-
-        dbFile.appendText(mapper.writeValueAsString(properties))
-        dbFile.appendText("\n")
-
-        return properties
     }
 
-    private fun getAuthProperties(userId: UserId): UserAuthProperties? {
-        if (!dbFile.exists()) { return null }
-
-        return dbFile.readLines()
-            .filter { it.isNotBlank() }
-            .map { mapper.readValue(it, UserAuthProperties::class.java) }
-            .find { it.userId == userId }
-    }
-
-    val mapper = ObjectMapper().registerModule(KotlinModule())
+//    val dbFile = File("/Users/julio.barros/tokens.txt")
+//
+//    private fun storeAccessToken(userId: UserId, accessToken: AccessToken): UserAuthProperties {
+//        dbFile.createNewFile()
+//
+//        val properties = UserAuthProperties(
+//            userId = userId,
+//            token = accessToken.token,
+//            tokenSecret = accessToken.tokenSecret
+//        )
+//
+//        dbFile.appendText(mapper.writeValueAsString(properties))
+//        dbFile.appendText("\n")
+//
+//        return properties
+//    }
+//
+//    private fun getAuthProperties(userId: UserId): UserAuthProperties? {
+//        if (!dbFile.exists()) { return null }
+//
+//        return dbFile.readLines()
+//            .filter { it.isNotBlank() }
+//            .map { mapper.readValue(it, UserAuthProperties::class.java) }
+//            .find { it.userId == userId }
+//    }
+//
+//    val mapper = ObjectMapper().registerModule(KotlinModule())
 }
 
 data class UserAuthProperties(
