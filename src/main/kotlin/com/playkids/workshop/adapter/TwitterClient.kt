@@ -16,7 +16,8 @@ import java.io.InputStreamReader
 object TwitterClient {
     val twitter = TwitterFactory.getSingleton()
 
-    fun getLoggedUser() = twitter.verifyCredentials().toSimpleUser()
+    fun getLoggedUser(): SimpleUser =
+        twitter.verifyCredentials().toSimpleUser()
 
     fun getHomeTweets(maxTweets: Int): List<Tweet> {
         var page = 1
